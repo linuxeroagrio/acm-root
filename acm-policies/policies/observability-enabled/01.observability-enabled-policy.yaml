@@ -1,0 +1,61 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: observability-enabled-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: observability-enabled-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          pruneObjectBehavior: None
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: open-cluster-management-observability
+                spec: {}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  .dockerconfigjson: '{{hub fromSecret "acm-policies" "observability-pull-secret" ".dockerconfigjson" hub}}'
+                kind: Secret
+                metadata:
+                  name: multiclusterhub-operator-pull-secret
+                  namespace: open-cluster-management-observability
+                type: kubernetes.io/dockerconfigjson
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  thanos.yaml: '{{hub fromSecret "acm-policies" "thanos-object-storage" "thanos.yaml" hub}}'
+                kind: Secret
+                metadata:
+                  name: thanos-object-storage
+                  namespace: open-cluster-management-observability
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: observability.open-cluster-management.io/v1beta2
+                kind: MultiClusterObservability
+                metadata:
+                  name: observability
+                spec:
+                  observabilityAddonSpec: {}
+                  storageConfig:
+                    metricObjectStorage:
+                      name: thanos-object-storage
+                      key: thanos.yaml
+                  nodeSelector: 
+                    node-role.kubernetes.io/infra: ''
+                  tolerations:
+                      - effect: NoSchedule
+                        key: node-role.kubernetes.io/infra

@@ -1,0 +1,13 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: monitoring-view-rbac-placement
+  namespace: acm-policies
+placementRef:
+  name: all-clusters-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: monitoring-view-rbac-policy
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy

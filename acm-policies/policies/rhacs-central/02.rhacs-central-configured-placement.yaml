@@ -1,0 +1,13 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: rhacs-central-configured-placement
+  namespace: acm-policies
+placementRef:
+  name: local-cluster-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: rhacs-central-configured-policy
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy

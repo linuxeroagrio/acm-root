@@ -1,0 +1,33 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: routes-edge-termination-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: routes-edge-termination-policy
+        spec:
+          remediationAction: inform
+          severity: medium
+          object-templates-raw: |
+            {{- range (lookup "route.openshift.io/v1" "Route" "" "").items }}
+            {{- if and (not (contains "openshift-" .metadata.namespace)) (not (contains "kube-" .metadata.namespace)) (not (contains "open-cluster-management" .metadata.namespace)) (not (contains "stackrox" .metadata.namespace)) (not (contains "multicluster-engine" .metadata.namespace)) }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: route.openshift.io/v1
+                kind: Route
+                metadata:
+                  name: {{ .metadata.name }}
+                  namespace: {{ .metadata.namespace }}
+                spec:
+                  tls:
+                    termination: edge
+                    insecureEdgeTerminationPolicy: Redirect
+            {{- end }}
+            {{- end }}
+          pruneObjectBehavior: None

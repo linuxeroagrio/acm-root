@@ -1,0 +1,27 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: custom-image-pruner-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: custom-image-pruner-policy
+        spec:
+          remediationAction: enforce
+          severity: low
+          pruneObjectBehavior: None
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: imageregistry.operator.openshift.io/v1
+                kind: ImagePruner
+                metadata:
+                  name: cluster
+                spec:
+                  keepYoungerThanDuration: 72h
+                  keepTagRevisions: 3

@@ -1,0 +1,52 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: quay-bridge-operator-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: quay-bridge-operator-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: low
+          pruneObjectBehavior: DeleteAll
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operators.coreos.com/v1alpha1
+                kind: Subscription
+                metadata:
+                  name: quay-bridge-operator
+                  namespace: openshift-operators
+                spec:
+                  installPlanApproval: Automatic
+                  name: quay-bridge-operator
+                  source: redhat-operators
+                  sourceNamespace: openshift-marketplace
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Secret
+                metadata:
+                  name: quay-integration
+                  namespace: openshift-operators
+                data:
+                  token: '{{hub fromSecret "acm-policies" "quay-integration" "token" hub}}'
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: quay.redhat.com/v1
+                kind: QuayIntegration
+                metadata:
+                  name: quay
+                spec:
+                  insecureRegistry: true
+                  clusterID: '{{hub .ManagedClusterName hub}}'
+                  credentialsSecret:
+                    namespace: openshift-operators
+                    name: quay-integration
+                  quayHostname: https://central-quay-registry.apps.tool.msttb.azure.redhatworkshops.io

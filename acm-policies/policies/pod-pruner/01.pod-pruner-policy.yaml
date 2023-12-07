@@ -1,0 +1,109 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: pod-pruner-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: pod-pruner-policy
+        spec:
+          remediationAction: enforce
+          severity: medium
+          pruneObjectBehavior: DeleteAll
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: pod-pruner
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ServiceAccount
+                metadata:
+                  name: pod-pruner-sa
+                  namespace: pod-pruner
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRole
+                metadata:
+                  name: pod-pruner
+                rules:
+                - apiGroups:
+                  - "*"
+                  resources:
+                  - pods
+                  verbs:
+                  - get
+                  - watch
+                  - list
+                  - delete
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: ClusterRoleBinding
+                metadata:
+                  name: pod-pruners
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: pod-pruner
+                subjects:
+                - kind: ServiceAccount
+                  name: pod-pruner-sa
+                  namespace: pod-pruner
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: batch/v1
+                kind: CronJob
+                metadata:
+                  name: pod-pruner-cj
+                  namespace: pod-pruner
+                spec:
+                  concurrencyPolicy: Forbid
+                  failedJobsHistoryLimit: 3
+                  jobTemplate:
+                    metadata:
+                      creationTimestamp: null
+                      labels:
+                        created-by: pod-pruner-cj
+                    spec:
+                      backoffLimit: 0
+                      template:
+                        metadata:
+                          creationTimestamp: null
+                        spec:
+                          affinity: {}
+                          containers:
+                          - command:
+                            - oc
+                            - delete
+                            - pod
+                            - --field-selector=status.phase!=Running
+                            - --all-namespaces
+                            image: registry.redhat.io/openshift4/ose-cli:v4.14
+                            imagePullPolicy: IfNotPresent
+                            name: pod-pruner
+                            resources:
+                              requests:
+                                cpu: 100m
+                                memory: 64Mi
+                              limits:
+                                cpu: 100m
+                                memory: 64Mi
+                          dnsPolicy: ClusterFirst
+                          restartPolicy: Never
+                          serviceAccount: pod-pruner-sa
+                          serviceAccountName: pod-pruner-sa
+                          terminationGracePeriodSeconds: 30
+                  schedule: 0 0 * * 0
+                  startingDeadlineSeconds: 3600
+                  successfulJobsHistoryLimit: 3
+                  suspend: false

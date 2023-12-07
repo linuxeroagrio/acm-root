@@ -1,0 +1,13 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: observability-enabled-placement
+  namespace: acm-policies
+placementRef:
+  name: local-cluster-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: observability-enabled-policy
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy

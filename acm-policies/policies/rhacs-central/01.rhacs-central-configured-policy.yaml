@@ -1,0 +1,75 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: rhacs-central-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: rhacs-central-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: stackrox
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: platform.stackrox.io/v1alpha1
+                kind: Central
+                metadata:
+                  name: stackrox-central-services
+                  namespace: stackrox
+                spec:
+                  central:
+                    nodeSelector:
+                      node-role.kubernetes.io/infra: ""
+                    tolerations:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/infra
+                    exposure:
+                      route:
+                        enabled: true
+                    db:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - effect: NoSchedule
+                        key: node-role.kubernetes.io/infra
+                      isEnabled: Default
+                      persistence:
+                        persistentVolumeClaim:
+                          claimName: central-db
+                    persistence:
+                      persistentVolumeClaim:
+                        claimName: stackrox-db
+                  egress:
+                    connectivityPolicy: Online
+                  scanner:
+                    db:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - effect: NoSchedule
+                        key: node-role.kubernetes.io/infra
+                    analyzer:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - effect: NoSchedule
+                        key: node-role.kubernetes.io/infra
+                      scaling:
+                        autoScaling: Enabled
+                        maxReplicas: 5
+                        minReplicas: 2
+                        replicas: 3
+                    scannerComponent: Enabled
+          pruneObjectBehavior: None
