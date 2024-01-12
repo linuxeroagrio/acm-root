@@ -24,6 +24,7 @@ spec:
                   namespace: openshift-monitoring
                 data:
                   config.yaml: |
+                    enableUserWorkload: true
                     prometheusOperator:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
