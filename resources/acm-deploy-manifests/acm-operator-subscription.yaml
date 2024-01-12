@@ -6,6 +6,7 @@ metadata:
   name: acm-operator-subscription
   namespace: open-cluster-management
 spec:
+  channel: CHANGE_ME
   sourceNamespace: openshift-marketplace
   source: redhat-operators
   installPlanApproval: Automatic
