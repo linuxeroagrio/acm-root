@@ -1,0 +1,51 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: ingress-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: ingress-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  tls.crt: '{{hub fromSecret "acm-policies" (printf "custom-ingress-certificate-%s" .ManagedClusterName) "tls.crt" hub}}'
+                  tls.key: '{{hub fromSecret "acm-policies" (printf "custom-ingress-certificate-%s" .ManagedClusterName) "tls.key" hub}}'
+                kind: Secret
+                metadata:
+                  name: custom-ingress-certificate
+                  namespace: openshift-ingress
+                type: kubernetes.io/tls
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: operator.openshift.io/v1
+                kind: IngressController
+                metadata:
+                  name: default
+                  namespace: openshift-ingress-operator
+                spec:
+                  replicas: CHANGE_ME
+                  defaultCertificate:
+                    name: custom-ingress-certificate
+                  nodePlacement:
+                    nodeSelector:
+                      matchLabels:
+                        node-role.kubernetes.io/infra: ""
+                    tolerations:
+                    - key: node-role.kubernetes.io/infra
+                      value: reserved
+                      effect: NoSchedule
+                    - key: node-role.kubernetes.io/infra
+                      value: reserved
+                      effect: NoExecute
+          pruneObjectBehavior: None
