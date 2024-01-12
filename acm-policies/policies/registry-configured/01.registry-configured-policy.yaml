@@ -1,0 +1,53 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: registry-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: registry-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                metadata:
+                  name: image-registry-storage
+                  namespace: openshift-image-registry
+                spec:
+                  accessModes:
+                  - ReadWriteMany
+                  storageClassName: CHANGE_ME
+                  resources:
+                    requests:
+                      storage: 100Gi
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: imageregistry.operator.openshift.io/v1
+                kind: Config
+                metadata:
+                  name: cluster
+                spec:
+                  replicas: 2
+                  defaultRoute: true
+                  managementState: Managed
+                  storage:
+                    pvc:
+                      claim: image-registry-storage
+                  nodeSelector:
+                    node-role.kubernetes.io/infra: ""
+                  tolerations:
+                  - key: node-role.kubernetes.io/infra
+                    value: reserved
+                    effect: NoSchedule
+                  - key: node-role.kubernetes.io/infra
+                    value: reserved
+                    effect: NoExecute
+          pruneObjectBehavior: None
