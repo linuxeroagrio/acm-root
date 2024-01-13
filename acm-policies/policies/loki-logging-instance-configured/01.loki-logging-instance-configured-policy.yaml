@@ -1,0 +1,128 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: loki-logging-instance-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: loki-logging-instance-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          pruneObjectBehavior: None
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  account_key: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "account_key" hub}}'
+                  account_name: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "account_name" hub}}'
+                  container: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "container" hub}}'
+                  environment: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "environment" hub}}'
+                kind: Secret
+                metadata:
+                  name: logging-loki-object-storage
+                  namespace: openshift-logging
+                type: Opaque
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: loki.grafana.com/v1
+                kind: LokiStack
+                metadata:
+                  name: logging-loki
+                  namespace: openshift-logging
+                spec:
+                  size: 1x.extra-small	
+                  storage:
+                    secret:
+                      name: logging-loki-object-storage
+                      type: azure
+                  storageClassName: CHANGE_ME
+                  tenants:
+                    mode: openshift-logging
+                  template:
+                    compactor:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    distributor:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    gateway:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    indexGateway:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    ingester:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    querier:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    queryFrontend:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
+                    ruler:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
