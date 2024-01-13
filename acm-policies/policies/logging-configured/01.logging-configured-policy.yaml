@@ -1,0 +1,37 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: logging-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: logging-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          pruneObjectBehavior: None
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: logging.openshift.io/v1
+                kind: ClusterLogging
+                metadata:
+                  name: instance 
+                  namespace: openshift-logging
+                spec:
+                  managementState: Managed 
+                  logStore:
+                    type: lokistack
+                    lokistack:
+                      name: logging-loki
+                  visualization:
+                    type: ocp-console
+                  collection:
+                    type: vector
+                    tolerations:
+                    - operator: Exists
