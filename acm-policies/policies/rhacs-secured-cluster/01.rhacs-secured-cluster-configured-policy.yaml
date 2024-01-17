@@ -33,10 +33,19 @@ spec:
                   clusterName: |
                     {{ fromSecret "open-cluster-management-agent" "hub-kubeconfig-secret" "cluster-name" | base64dec }}
                   centralEndpoint: |
-                    central-stackrox.apps.infra.sandbox3104.opentlc.com:443
+                    CHANGE_ME
                   auditLogs:
                     collection: Auto
                   admissionControl:
+                    nodeSelector:
+                      node-role.kubernetes.io/infra: ""
+                    tolerations:
+                    - key: node-role.kubernetes.io/infra
+                      value: reserved
+                      effect: NoSchedule
+                    - key: node-role.kubernetes.io/infra
+                      value: reserved
+                      effect: NoExecute
                     listenOnUpdates: true
                     bypass: BreakGlassAnnotation
                     contactImageScanners: DoNotScanInline
@@ -45,14 +54,43 @@ spec:
                     listenOnEvents: true
                   scanner:
                     analyzer:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
                       scaling:
                         autoScaling: Enabled
                         maxReplicas: 5
                         minReplicas: 2
                         replicas: 3
+                    db:
+                      nodeSelector:
+                        node-role.kubernetes.io/infra: ""
+                      tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
                     scannerComponent: AutoSense
                   perNode:
                     collector:
-                      collection: KernelModule
-                      imageFlavor: Regular
+                      collection: EBPF
+                      imageFlavor: Slim
                     taintToleration: TolerateTaints
+                  sensor:
+                    nodeSelector:
+                      node-role.kubernetes.io/infra: ""
+                    tolerations:
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoSchedule
+                      - key: node-role.kubernetes.io/infra
+                        value: reserved
+                        effect: NoExecute
