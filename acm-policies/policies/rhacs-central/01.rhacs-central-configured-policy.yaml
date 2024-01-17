@@ -35,6 +35,10 @@ spec:
                     tolerations:
                     - effect: NoSchedule
                       key: node-role.kubernetes.io/infra
+                      value: reserved
+                    - effect: NoExecute
+                      key: node-role.kubernrtes.io/infra
+                      value: reserved
                     exposure:
                       route:
                         enabled: true
@@ -44,13 +48,21 @@ spec:
                       tolerations:
                       - effect: NoSchedule
                         key: node-role.kubernetes.io/infra
+                        value: reserved
+                      - effect: NoExecute
+                        key: node-role.kubernetes.io/infra
+                        value: reserved
                       isEnabled: Default
                       persistence:
                         persistentVolumeClaim:
                           claimName: central-db
+                          size: CHANGE_ME
+                          storageClassName: CHANGE_ME
                     persistence:
                       persistentVolumeClaim:
                         claimName: stackrox-db
+                        size: CHANGE_ME
+                        storageClassName: CHANGE_ME
                   egress:
                     connectivityPolicy: Online
                   scanner:
@@ -60,16 +72,24 @@ spec:
                       tolerations:
                       - effect: NoSchedule
                         key: node-role.kubernetes.io/infra
+                        value: reserved
+                      - effect: NoExecute
+                        key: node-role.kubernetes.io/infra
+                        value: reserved
                     analyzer:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
                       - effect: NoSchedule
                         key: node-role.kubernetes.io/infra
+                        value: reserved
+                      - effect: NoExecute
+                        key: node-role.kubernetes.io/infra
+                        value: reserved
                       scaling:
                         autoScaling: Enabled
                         maxReplicas: 5
                         minReplicas: 2
-                        replicas: 3
+                        replicas: 2
                     scannerComponent: Enabled
           pruneObjectBehavior: None
