@@ -9,7 +9,7 @@ spec:
   nodeSelector:
     node-role.kubernetes.io/infra: ""
   tolerations:
-  - key: node-role.kuberenetes.io/infra
+  - key: node-role.kubernetes.io/infra
     effect: NoSchedule
     value: reserved
   - key: node-role.kubernetes.io/infra
