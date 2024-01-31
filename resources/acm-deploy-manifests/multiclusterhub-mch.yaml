@@ -12,6 +12,6 @@ spec:
   - key: node-role.kubernetes.io/infra
     effect: NoSchedule
     value: reserved
-  - key: node-role.kubernetes.io/infra
-    effect: NoExecute
-    value: reserved
+#  - key: node-role.kubernetes.io/infra
+#    effect: NoExecute
+#    value: reserved
