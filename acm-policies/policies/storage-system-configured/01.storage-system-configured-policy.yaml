@@ -1,0 +1,70 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: storage-system-configured-policy 
+  namespace: acm-policies
+spec:
+  dependencies:
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: local-storage-configured-policy
+    namespace: acm-policies
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: odf-operator-installed-policy
+    namespace: acm-policies
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: storage-system-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          pruneObjectBehavior: DeleteIfCreated
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: ocs.openshift.io/v1
+                kind: StorageCluster
+                metadata:
+                  name: ocs-storagecluster
+                  namespace: openshift-storage
+                spec:
+                  monDataDirHostPath: /var/lib/rook
+                  storageDeviceSets:
+                  - config: {}
+                    count: 3
+                    dataPVCTemplate:
+                      metadata: {}
+                      spec:
+                        accessModes:
+                        - ReadWriteOnce
+                        resources:
+                          requests:
+                            storage: "1"
+                        storageClassName: lso-volumeset
+                        volumeMode: Block
+                      status: {}
+                    name: ocs-deviceset-lso-volumeset
+                    replica: 1
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: rook-ceph-operator-config
+                  namespace: openshift-storage
+                data:
+                  CSI_PLUGIN_TOLERATIONS: |
+                    - key: node.ocs.openshift.io/storage
+                      operator: Equal
+                      value: "true"
+                      effect: NoSchedule
+                    - key: node-role.kubernetes.io/infra
+                      value: "reserved"
+                      effect: NoSchedule
