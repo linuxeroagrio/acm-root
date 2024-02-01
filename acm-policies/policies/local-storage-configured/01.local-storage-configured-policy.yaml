@@ -1,0 +1,74 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: local-storage-configured-policy 
+  namespace: acm-policies
+spec:
+  dependencies:
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: local-storage-operator-installed-policy
+    namespace: acm-policies
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: local-storage-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          pruneObjectBehavior: DeleteIfCreated
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: local.storage.openshift.io/v1alpha1
+                kind: LocalVolumeDiscovery
+                metadata:
+                  name: auto-discover-devices
+                  namespace: openshift-local-storage
+                spec:
+                  tolerations:
+                  - key: node.ocs.openshift.io/storage
+                    value: "true"
+                    effect: NoSchedule
+                  nodeSelector:
+                    nodeSelectorTerms:
+                      - matchExpressions:
+                        - key: cluster.ocs.openshift.io/openshift-storage
+                          operator: Exists
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: local.storage.openshift.io/v1alpha1
+                kind: LocalVolumeSet
+                metadata:
+                  name: local-block
+                  namespace: openshift-local-storage
+                spec:
+                  tolerations:
+                  - key: node.ocs.openshift.io/storage
+                    value: "true"
+                    effect: NoSchedule
+                  nodeSelector:
+                    nodeSelectorTerms:
+                      - matchExpressions:
+                          - key: cluster.ocs.openshift.io/openshift-storage
+                            operator: In
+                            values:
+                              - ""
+                  storageClassName: lso-volumeset
+                  volumeMode: Block
+                  fsType: xfs
+                  maxDeviceCount: 1
+                  deviceInclusionSpec:
+                    deviceTypes:
+                    - disk
+                    deviceMechanicalProperties:
+                    - NonRotational
+                    models:
+                    - Virtual disk
+                    vendors:
+                    - VMware
+                    minSize: 1Gi
