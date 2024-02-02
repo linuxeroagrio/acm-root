@@ -1,0 +1,100 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: time-nodes-configured-policy
+  namespace: acm-policies
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: time-nodes-configured-policy
+        spec:
+          remediationAction: enforce
+          severity: high
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfig
+                metadata:
+                  labels:
+                    machineconfiguration.openshift.io/role: worker
+                  name: 99-worker-time
+                spec:
+                  config:
+                    ignition:
+                      config: {}
+                      security:
+                        tls: {}
+                      timeouts: {}
+                      version: 3.2.0
+                    networkd: {}
+                    passwd: {}
+                    storage:
+                      files:
+                      - path: /etc/chrony.conf
+                        mode: 0644
+                        overwrite: true
+                        contents:
+                          source: data:text/plain;charset=utf-8;base64,CHANGE_ME
+                    systemd:
+                      units:
+                      - contents: |
+                          [Unit]
+                          Description=set timezone
+                          After=network-online.target
+                
+                          [Service]
+                          Type=oneshot
+                          ExecStart=timedatectl set-timezone CHANGE_ME
+                
+                          [Install]
+                          WantedBy=multi-user.target
+                        enabled: true
+                        name: custom-timezone.service
+                  osImageURL: ""
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfig
+                metadata:
+                  labels:
+                    machineconfiguration.openshift.io/role: master
+                  name: 99-master-time
+                spec:
+                  config:
+                    ignition:
+                      config: {}
+                      security:
+                        tls: {}
+                      timeouts: {}
+                      version: 3.2.0
+                    networkd: {}
+                    passwd: {}
+                    storage:
+                      files:
+                      - path: /etc/chrony.conf
+                        mode: 0644
+                        overwrite: true
+                        contents:
+                          source: data:text/plain;charset=utf-8;base64,CHANGE_ME
+                    systemd:
+                      units:
+                      - contents: |
+                          [Unit]
+                          Description=set timezone
+                          After=network-online.target
+ 
+                          [Service]
+                          Type=oneshot
+                          ExecStart=timedatectl set-timezone CHANGE_ME
+ 
+                          [Install]
+                          WantedBy=multi-user.target
+                        enabled: true
+                        name: custom-timezone.service
+                  osImageURL: ""
+          pruneObjectBehavior: DeleteIfCreated
