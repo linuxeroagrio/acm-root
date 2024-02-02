@@ -25,7 +25,7 @@ spec:
         spec:
           remediationAction: enforce
           severity: high
-          pruneObjectBehavior: None
+          pruneObjectBehavior: DeleteIfCreated
           object-templates:
             - complianceType: musthave
               objectDefinition:
