@@ -29,15 +29,27 @@ spec:
           object-templates:
             - complianceType: musthave
               objectDefinition:
+                apiVersion: objectbucket.io/v1alpha1
+                kind: ObjectBucketClaim
+                metadata:
+                  name: loki-logging-obc
+                  namespace: openshift-logging
+                spec:
+                  additionalConfig:
+                    bucketclass: noobaa-default-bucket-class
+                  generateBucketName: loki-logging-obc
+                  storageClassName: openshift-storage.noobaa.io
+            - complianceType: musthave
+              objectDefinition:
                 apiVersion: v1
                 data:
-                  account_key: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "account_key" hub}}'
-                  account_name: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "account_name" hub}}'
-                  container: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "container" hub}}'
-                  environment: '{{hub fromSecret "acm-policies" (printf "logging-loki-object-storage-%s" .ManagedClusterName) "environment" hub}}'
+                  access_key_id: '{{ fromSecret "openshift-logging" "loki-logging-obc" "AWS_ACCESS_KEY_ID" }}'
+                  access_key_secret: '{{ fromSecret "openshift-logging" "loki-logging-obc" "AWS_SECRET_ACCESS_KEY" }}'
+                  bucketnames: '{{ fromConfigMap "openshift-logging" "loki-logging-obc" "BUCKET_NAME" | base64enc}}'
+                  endpoint: '{{ printf "https://%s:%s" (fromConfigMap "openshift-logging" "loki-logging-obc" "BUCKET_HOST") (fromConfigMap "openshift-logging" "loki-logging-obc" "BUCKET_PORT") | base64enc }}'
                 kind: Secret
                 metadata:
-                  name: logging-loki-object-storage
+                  name: logging-loki-odf
                   namespace: openshift-logging
                 type: Opaque
             - complianceType: musthave
@@ -51,8 +63,10 @@ spec:
                   size: 1x.extra-small	
                   storage:
                     secret:
-                      name: logging-loki-object-storage
-                      type: azure
+                      name: logging-loki-odf
+                      type: s3
+                    tls:
+                      caName: openshift-service-ca.crt
                   storageClassName: CHANGE_ME
                   tenants:
                     mode: openshift-logging
