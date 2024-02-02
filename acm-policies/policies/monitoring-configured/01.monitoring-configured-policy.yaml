@@ -29,10 +29,10 @@ spec:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     prometheusK8s:
@@ -46,10 +46,10 @@ spec:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     alertmanagerMain:
@@ -62,60 +62,60 @@ spec:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     kubeStateMetrics:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     openshiftStateMetrics:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     telemeterClient:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     k8sPrometheusAdapter:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
                     thanosQuerier:
                       nodeSelector:
                         node-role.kubernetes.io/infra: ""
                       tolerations:
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoSchedule
-                      - key: node-role.kuberenetes.io/infra
+                      - key: node-role.kubernetes.io/infra
                         value: reserved
                         effect: NoExecute
           pruneObjectBehavior: None
