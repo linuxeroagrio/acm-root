@@ -10,6 +10,11 @@ spec:
     kind: Policy
     name: loki-operator-installed-policy
     namespace: acm-policies
+  - apiVersion: policy.open-cluster-management.io/v1
+    compliance: Compliant
+    kind: Policy
+    name: logging-operator-installed-policy
+    namespace: acm-policies
   disabled: false
   policy-templates:
     - objectDefinition:
